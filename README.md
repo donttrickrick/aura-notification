@@ -1,4 +1,4 @@
-# Aura Data Tables
+# Aura Notification
 
 This repo implements enhanced in-app notifications.
 
