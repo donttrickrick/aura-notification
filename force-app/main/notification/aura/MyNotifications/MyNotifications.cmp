@@ -1,0 +1,108 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" controller="MyNotificationsController" >
+    <aura:attribute name="supportsPopOut" type="Boolean" default="false" />
+
+    <!-- Calls the onInit controller function on component initalization -->
+    <!-- Holds the streaming event subscription -->
+    <aura:attribute name="subscription" type="Map" />
+    
+    <aura:attribute name="loginUserId" type="String" />
+    <aura:attribute name="totalUnreadSize" type="Integer" />
+    <aura:attribute name="notificationTypeList" type="List" />
+    <aura:attribute name="notificationList" type="List" />
+    
+    <aura:handler name="init" value="this" action="{!c.onInit}" />
+    
+    <lightning:empApi aura:id="empApi"/>
+
+    <lightning:utilityBarAPI aura:id="utilitybar"  />
+    <lightning:tabset variant="scoped">
+        <aura:iteration items="{!v.notificationTypeList}" var="ntfType" >
+            <lightning:tab class="slds-tabs_default__item slds-has-notification" >
+                <aura:set attribute="label" >
+                    <a aria-controls="subtab-tabpanel-02" aria-selected="false" class="slds-tabs_default__item slds-has-notification slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);" id="subtab-tabitem-02" role="tab" tabindex="-1" title="Chat - Customer">
+                        <aura:if isTrue="{!ntfType.unreadSize > 0}" >
+                            <span class="slds-indicator-container">
+                                <span class="slds-indicator_unread" ></span>
+                            </span>
+                        </aura:if>
+                        <lightning:icon iconName="{!ntfType.iconName}" size="small" />
+                        <span class="slds-truncate" title="{!ntfType.label}">{!ntfType.label} {!if(ntfType.unreadSize > 0, join('',' (',ntfType.unreadSize,')'), '')}</span>
+                    </a>
+                </aura:set>
+                <ul class="slds-accordion">
+                    <aura:iteration items="{!v.notificationList}" var="ntf" indexVar="index" >
+                        
+                        <aura:if isTrue="{!ntf.Type__c == ntfType.label}">
+                        	<li class="slds-accordion__list-item">
+                            <section class="{!join(' ', if(ntf.Is_Read__c, 'read', 'unread'), if(ntf.isOpen, 'slds-accordion__section slds-is-open', 'slds-accordion__section'))}"  >
+                                <div class="slds-accordion__summary" >
+                                    <h3 class="slds-accordion__summary-heading width-by-parent" data-main-index="{!index}" onclick="{!c.handleClickMainSection}">
+                                        <button aria-controls="accordion-details-01" aria-expanded="true" class="slds-button slds-button_reset slds-accordion__summary-action">
+                                            <lightning:icon class="{!if(ntf.subNotificationList.length > 0, 'slds-button__icon_left', 'slds-button__icon_left slds-hidden')}" iconName="{!if(ntf.isOpen, 'utility:chevrondown', 'utility:chevronright')}" size="x-small" />
+                                            <span class="slds-truncate" title="{!ntf.Body__c}">
+                                                <article class="slds-tile slds-media" >
+                                                    <div class="slds-media__figure" >
+                                                        <lightning:icon iconName="{!ntf.Icon_Name__c}" />
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <h3 class="slds-tile__title slds-truncate" title="{!ntf.Title__c}">
+                                                            <ul class="slds-list_horizontal slds-has-dividers_right">
+                                                                <li class="slds-item">
+                                                                    <span><aura:unescapedHtml value="{!ntf.Title__c}" /> {!if(ntf.unreadSize > 0, join('',' (',ntf.unreadSize,')'), '')}</span>
+                                                                </li>
+                                                                <li class="slds-item">
+                                                                    <lightning:relativeDateTime value="{!ntf.CreatedDateObject}" />
+                                                                </li>
+                                                            </ul>
+                                                        </h3>
+                                                        <div class="slds-tile__detail body-smaller-font">
+                                                            <p class="slds-truncate"  title="{!ntf.Body__c}"><aura:unescapedHtml value="{!ntf.Body__c}" /></p>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            </span>
+                                        </button>
+                                    </h3>
+                                </div>
+                                <aura:if isTrue="{!ntf.subNotificationList.length > 0}" >
+                                    <div class="slds-accordion__content" id="accordion-details-01" >
+                                        <aura:iteration items="{!ntf.subNotificationList}" var="subNtf" indexVar="subIndex" >
+                                            <h3 class="slds-accordion__summary-heading width-by-parent" data-main-index="{!index}" data-sub-index="{!subIndex}" onclick="{!c.handleClickSubSection}">
+                                                <button aria-controls="accordion-details-01" aria-expanded="true" class="slds-button slds-button_reset slds-accordion__summary-action">
+                                                    <article class="slds-tile slds-media sub-marign-left" >
+                                                        <div class="slds-media__figure" >
+                                                            <lightning:icon iconName="{!subNtf.Icon_Name__c}" />
+                                                        </div>
+                                                        <div class="slds-media__body">
+                                                            <h3 class="slds-tile__title slds-truncate" title="{!subNtf.Title__c}">
+                                                                <ul class="slds-list_horizontal slds-has-dividers_right">
+                                                                    <li class="slds-item">
+                                                                        <span><aura:unescapedHtml value="{!subNtf.Title__c}" /></span>
+                                                                    </li>
+                                                                    <li class="slds-item">
+                                                                        <lightning:relativeDateTime value="{!subNtf.CreatedDateObject}" />
+                                                                    </li>
+                                                                </ul>
+                                                            </h3>
+                                                            <div class="slds-tile__detail body-smaller-font">
+                                                                <p class="slds-truncate"><aura:unescapedHtml value="{!subNtf.Body__c}" /></p>
+                                                            </div>
+                                                        </div>
+                                                    </article>
+                                                </button>
+                                            </h3>
+                                        </aura:iteration>
+                                    </div>
+                                </aura:if>
+                            </section>
+                        </li>
+                        
+                        </aura:if>
+                        
+                    </aura:iteration>
+                </ul>
+                
+            </lightning:tab>
+        </aura:iteration>
+    </lightning:tabset>
+</aura:component>
