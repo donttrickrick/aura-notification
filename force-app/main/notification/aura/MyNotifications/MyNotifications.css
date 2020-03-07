@@ -1,0 +1,27 @@
+.THIS .sub-marign-left {
+    margin-left: 1.5rem;
+}
+.THIS .slds-accordion__summary-heading {
+    line-height: inherit;
+    font-size: inherit;
+}
+.THIS .slds-tabs_scoped__content {
+    padding: 0;
+}
+.THIS .slds-accordion__content .slds-accordion__summary-heading {
+    border-top: 1px solid rgb(217, 219, 221);
+    padding: 5px 0;
+}
+.THIS .unread {
+    font-weight: bold;
+    background: white;
+}
+.THIS .read {
+    background: rgb(250, 250, 249);
+}
+.THIS .body-smaller-font {
+    font-size: smaller;
+}
+.THIS .width-by-parent {
+    width: 100%;
+}
